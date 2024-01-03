@@ -937,7 +937,7 @@ They are named *{IntArrayList}*, *{FloatArrayList}* etc.
 Current JVMs use one byte per boolean in a *boolean[]* (instead of one bit per boolean).
 Thus the *BooleanArrayList* is backed by a *java.util.BitSet* as an optimization.
 
-.our ways to creCreate an *IntArrayList*, use one of the following:
+.our ways to create an *IntArrayList*, use one of the following:
 ====
 [source,java]
 ----
@@ -951,11 +951,64 @@ IntArrayList listFromIntIterable = IntArrayList.newListWith(IntHashSet.newSetWit
 
 An *IntInterval* is a range of **int**s that may be iterated over using a step value.
 (Similar to *Interval*, but uses primitive ints instead of the wrapper *Integers*.)
+All arguments are inclusive in methods of IntInterval.
 
+As *IntInterval* implements *ImmutableIntList*, you can pass it in any method or constructor argument which accept *ImmutableIntList*.
 [source,java]
 ----
-Assert.assertEquals(IntLists.mutable.with(1, 2, 3), IntInterval.oneTo(3));
-Assert.assertEquals(IntLists.mutable.with(1, 3, 5), IntInterval.oneToBy(5, 2));
+Assertions.assertInstanceOf(ImmutableIntList.class, IntInterval.oneTo(5));
+----
+
+.There are different ways you can generate interval of numbers using *IntInterval*, which are listed below.
+- You can initialize IntInterval using constructor argument which accept from, to and steps.
+- You can initialize IntInterval using static factory methods.
+[source,java]
+----
+// Generate interval of numbers from 1 to 5, with the default step value of 1
+ImmutableIntList expected = IntLists.immutable.with(1, 2, 3, 4, 5);
+Assertions.assertEquals(expected, IntInterval.fromTo(1, 5));
+
+// Generate interval of numbers from 1 to 10, with providing steps value as method argument
+ImmutableIntList expected = IntLists.immutable.with(1, 4, 7, 10);
+Assertions.assertEquals(expected, IntInterval.fromToBy(1, 10, 3));
+
+// from method is used to generate interval with only one number which is provided as method argument
+ImmutableIntList expected = IntLists.immutable.with(10);
+Assertions.assertEquals(expected, IntInterval.from(10));
+
+// Generate interval of even numbers, here steps value can be 2 or -2, based on following condition [to > from ? 2 : -2]
+ImmutableIntList expected = IntLists.immutable.with(2, 4, 6);
+Assertions.assertEquals(expected, IntInterval.evensFromTo(2, 6));
+
+ImmutableIntList expected = IntLists.immutable.with(6, 4, 2);
+Assertions.assertEquals(expected, IntInterval.evensFromTo(6, 2));
+
+// Generate interval of odd numbers, here steps value can be 2 or -2, based on following condition [to > from ? 2 : -2]
+ImmutableIntList expected = IntLists.immutable.with(1, 3, 5);
+Assertions.assertEquals(expected, IntInterval.oddsFromTo(1, 5));
+
+ImmutableIntList expected = IntLists.immutable.with(5, 3, 1);
+Assertions.assertEquals(expected, IntInterval.oddsFromTo(5, 1));
+
+// Generate interval of numbers from 1 to 5, with the default step value of 1
+ImmutableIntList expected = IntLists.immutable.with(1, 2, 3, 4, 5);
+Assertions.assertEquals(expected, IntInterval.oneTo(5));
+
+// Generate interval of numbers from 1 to 9, with providing step value as a method argument
+ImmutableIntList expected = IntLists.immutable.with(1, 3, 5, 7, 9);
+Assertions.assertEquals(expected, IntInterval.oneToBy(10, 2));
+
+// zero is used to create interval with only one number [0]
+ImmutableIntList expected = IntLists.immutable.with(0);
+Assertions.assertEquals(expected, IntInterval.zero());
+
+// Generate interval of numbers from 0 to 4, with the default step value of 1
+ImmutableIntList expected = IntLists.immutable.with(0, 1, 2, 3, 4);
+Assertions.assertEquals(expected, IntInterval.zeroTo(4));
+
+// Generate interval of numbers from 0 to 4, with providing step value as a method argument
+ImmutableIntList expected = IntLists.immutable.with(0, 2, 4);
+Assertions.assertEquals(expected, IntInterval.zeroToBy(4, 2));
 ----
 
 === Primitive sets
@@ -964,6 +1017,90 @@ The primitive set implementations are hash-table backed.
 They are named *{IntHashSet}*, *{FloatHashSet}* etc.
 *{BooleanHashSet}* is implemented using a single integer to hold one of four possible states: ([], [F], [T], or [T, F]).
 All other sets use open addressing and quadratic probing.
+
+.There are different ways you can create primitive sets, which are listed below.
+- You can create primitive sets using **newSetWith** method.
+- You can initialize primitive sets using constructor argument. There are several overloaded constructors available.
+Below examples are provided with *IntHashSet* but all are same for *FloatHashSet* and *BooleanHashSet* as well.
+- There is another way to construct primitive types using primitive factory classes.
+[source,java]
+----
+// Initialize IntHashSet using newSetWith method, which is taking int vargs.
+MutableIntSet intHashSet1 = IntHashSet.newSetWith(1, 2, 3, 4, 5);
+MutableFloatSet floatHashSet1 = FloatHashSet.newSetWith(12.5f, 13.5f, 14.88f, 15.6f);
+MutableBooleanSet booleanHashSet = BooleanHashSet.newSetWith(true, false);
+
+// Empty Constructor will initialize IntHashSet with 16 size
+MutableIntSet intHashSet2 = new IntHashSet();
+
+// Initialize Constructor with initialCapacity
+MutableIntSet intHashSet3 = new IntHashSet(32);
+
+// Initialize Constructor with set of integers using vargs.
+MutableIntSet intHashSet4 = new IntHashSet(1, 2, 3, 4, 5, 6);
+
+// Initialize Constructor with IntIterable.
+IntIterable intIterable = intHashSet4; // you can get from any list, set which implement this interface
+MutableIntSet intHashSet = new IntHashSet(intIterable);
+
+// Initialize Constructor with existing IntHashSet
+MutableIntSet intHashSet5 = new IntHashSet(intHashSet2);
+----
+
+Primitive sets can be created using factory classes, *IntSets*, *FloatSets* and *BooleanSets* are primitive factory classes which provides mutable & immutable ways of creating sets. factory classes provide different set of methods for creating sets like *with*, *withAll*, *empty* and *ofAll* with different set of arguments. Provided examples are with *IntSets* but all are valid for *FloatSets* and *BooleanSets* as well.
+
+*withInitialCapacity* is only available in mutable factories.
+[source, java]
+----
+// mutable intset creation using initialCapacity
+MutableIntSet mutableIntSetCapacity = IntSets.mutable.withInitialCapacity(12);
+mutableIntSetCapacity.addAll(1, 3, 5, 6);
+
+// mutable sets creation using factory class using with method.
+MutableIntSet mutableIntSet = IntSets.mutable.with(1, 2, 3, 4, 5);
+MutableFloatSet mutableFloatSet = FloatSets.mutable.with(1.5f, 2.5f);
+MutableBooleanSet mutableBooleanSet = BooleanSets.mutable.with(true, false, false, true);
+
+// Immutable sets creation using factory class using with method.
+ImmutableIntSet immutableIntSet = IntSets.immutable.with(1, 2, 3, 4, 5);
+ImmutableFloatSet immutableFloatSet = FloatSets.immutable.with(1.5f, 2.5f);
+ImmutableBooleanSet immutableBooleanSet = BooleanSets.immutable.with(true, false, false, true);
+
+// immutable intset creating using IntIterable
+IntIterable intIterable = immutableIntSet; // you can get from any list, set which implement this interface
+ImmutableIntSet immutableIntSet = IntSets.immutable.withAll(intIterable);
+----
+
+Operation which you can perform on primitive hashsets.
+[source,java]
+----
+// Initialize IntHashSet using newSetWith method, which is taking int vargs.
+MutableIntSet intHashSet = IntHashSet.newSetWith(1, 2, 3, 4, 5);
+intHashSet.add(6);
+intHashSet.addAll(7, 8, 9); //addAll takes varags argument
+
+// We can use allSatisfy/anySatisfy method which take predicate to compare with all value of primitive sets
+boolean allSatisfy = intHashSet.allSatisfy(x -> 2 < x);
+boolean anySatisfy = intHashSet.anySatisfy(x -> 5 > x);
+
+// containsAll check for all element in primitive set
+boolean containsAll = intHashSet.containsAll(5, 4);
+
+// We can do a math operation like min, max on intHashSet
+int min = intHashSet.min();
+int max = intHashSet.max();
+
+// We can filter set with select method, which return filtered set, same way you can use reject as well
+MutableIntSet evens = intHashSet.select(x -> 0 == x % 2);
+MutableIntSet odds = intHashSet.reject(x -> 0 == x % 2);
+
+// We can do different set of conversion operation on primitive set as well, like toArray, toSortedArray, toBag, toSortedList and many more.
+ImmutableIntSet immutableIntSet = intHashSet.toImmutable();
+int[] toArray = intHashSet.toArray();
+int[] toSortedArray = intHashSet.toSortedArray();
+MutableIntList mutableIntList = intHashSet.toSortedList();
+MutableIntBag mutableIntBag = intHashSet.toBag();
+----
 
 === Primitive stacks
 
@@ -990,12 +1127,10 @@ Primitive maps with numeric value types (not boolean or Object) have a method *a
 ====
 [source,java]
 ----
-MutableByteIntMap map =
-new ByteIntHashMap();
+MutableByteIntMap map = new ByteIntHashMap();
 Assert.assertEquals(1, map.addToValue((byte) 0, 1));
 Assert.assertEquals(ByteIntHashMap.newWithKeysValues((byte) 0, 1), map);
-Assert.assertEquals(11, map.addToValue((
-byte) 0, 10));
+Assert.assertEquals(11, map.addToValue((byte) 0, 10));
 Assert.assertEquals(ByteIntHashMap.newWithKeysValues((byte) 0, 11), map);
 ----
 ====
@@ -1138,7 +1273,6 @@ PartitionMutableList<Person> partitionedFolks =
 ImmutableList<Person> list0 = Lists.immutable.empty();
 ImmutableList<Person> list1 = list0.newWith(new Person(...)); // add a single element to the new immutable list
 ImmutableList<Person> adults = list1.newWithAll(partitionedFolks.getSelected()); // add none, one or more objects to the new immutable list
-I
 
 ImmutableSet<String> set0 = Sets.immutable.empty();
 ImmutableSet<String> set1 = set0.newWith("1"); // add a single element to the new immutable set

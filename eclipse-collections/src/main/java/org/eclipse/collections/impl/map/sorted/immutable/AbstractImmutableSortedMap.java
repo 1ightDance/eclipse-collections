@@ -14,8 +14,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.SortedMap;
+import java.util.function.BiConsumer;
 
-import org.eclipse.collections.api.LazyIterable;
 import org.eclipse.collections.api.bag.ImmutableBag;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.function.Function0;
@@ -506,12 +506,6 @@ public abstract class AbstractImmutableSortedMap<K, V>
     }
 
     @Override
-    public LazyIterable<V> asReversed()
-    {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".asReversed() not implemented yet");
-    }
-
-    @Override
     public ImmutableSortedMap<K, V> toReversed()
     {
         throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".toReversed() not implemented yet");
@@ -545,12 +539,6 @@ public abstract class AbstractImmutableSortedMap<K, V>
     public ImmutableList<V> distinct()
     {
         throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".distinct() not implemented yet");
-    }
-
-    @Override
-    public int indexOf(Object object)
-    {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".indexOf() not implemented yet");
     }
 
     @Override
@@ -608,5 +596,11 @@ public abstract class AbstractImmutableSortedMap<K, V>
     public <V1> ImmutableBag<V1> countByEach(Function<? super V, ? extends Iterable<V1>> function)
     {
         return this.countByEach(function, Bags.mutable.empty()).toImmutable();
+    }
+
+    @Override
+    public void forEach(BiConsumer<? super K, ? super V> action)
+    {
+        super.forEach(action);
     }
 }

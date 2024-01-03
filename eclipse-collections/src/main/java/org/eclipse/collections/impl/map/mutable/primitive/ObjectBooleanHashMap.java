@@ -1053,16 +1053,9 @@ public class ObjectBooleanHashMap<K> implements MutableObjectBooleanMap<K>, Exte
     {
         if (value == null)
         {
-            if (other == null)
-            {
-                return true;
-            }
+            return other == null;
         }
-        else if (other == value || value.equals(other))
-        {
-            return true;
-        }
-        return false;
+        return other == value || value.equals(other);
     }
 
     private K toNonSentinel(Object key)
@@ -1107,6 +1100,20 @@ public class ObjectBooleanHashMap<K> implements MutableObjectBooleanMap<K>, Exte
         int capacity = this.keys.length;
         // need at least one free slot for open addressing
         return Math.min(capacity - 1, capacity / OCCUPIED_DATA_RATIO);
+    }
+
+    /**
+    * @since 12.0
+    */
+    public boolean trimToSize()
+    {
+        int newCapacity = this.smallestPowerOfTwoGreaterThan(this.size());
+        if (this.keys.length > newCapacity)
+        {
+            this.rehash(newCapacity);
+            return true;
+        }
+        return false;
     }
 
     private void rehashAndGrow()

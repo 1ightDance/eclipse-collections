@@ -11,9 +11,11 @@
 package org.eclipse.collections.api.map;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -100,7 +102,7 @@ public interface MapIterable<K, V> extends RichIterable<V>
      * Implements the {@code injectInto} pattern with each <em>key-value</em> pair of the map.
      * <pre>
      *     MapIterable&lt;Integer, Integer&gt; map1 = Maps.immutable.with(3, 3, 2, 2, 1, 1);
-     *     Integer sum1 = map1.<b>injectIntoKeyValue</b>(0, (sum, key, value) -> sum + key + value);
+     *     Integer sum1 = map1.<b>injectIntoKeyValue</b>(0, (sum, key, value) -&gt; sum + key + value);
      *     assertEquals(12, sum1);
      * </pre>
      *
@@ -348,5 +350,11 @@ public interface MapIterable<K, V> extends RichIterable<V>
                 nonMutatingAggregator,
                 valueFunction.valueOf(value)));
         return map;
+    }
+
+    default void forEach(BiConsumer<? super K, ? super V> action)
+    {
+        Objects.requireNonNull(action);
+        this.forEachKeyValue(action::accept);
     }
 }

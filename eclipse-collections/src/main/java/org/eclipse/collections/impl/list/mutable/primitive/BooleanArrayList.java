@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Goldman Sachs and others.
+ * Copyright (c) 2023 Goldman Sachs and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v. 1.0 which accompany this distribution.
@@ -37,7 +37,9 @@ import org.eclipse.collections.api.list.primitive.ImmutableBooleanList;
 import org.eclipse.collections.api.list.primitive.MutableBooleanList;
 import org.eclipse.collections.api.set.primitive.BooleanSet;
 import org.eclipse.collections.api.set.primitive.MutableBooleanSet;
+import org.eclipse.collections.api.stack.primitive.MutableBooleanStack;
 import org.eclipse.collections.impl.bag.mutable.primitive.BooleanHashBag;
+import org.eclipse.collections.impl.factory.primitive.BooleanStacks;
 import org.eclipse.collections.impl.lazy.primitive.LazyBooleanIterableAdapter;
 import org.eclipse.collections.impl.lazy.primitive.ReverseBooleanIterable;
 import org.eclipse.collections.impl.list.mutable.FastList;
@@ -316,7 +318,7 @@ public final class BooleanArrayList
         int sourceSize = source.length;
         int newSize = this.size + sourceSize;
 
-        for (int i = newSize; i > index; i--)
+        for (int i = newSize - 1; i >= index + sourceSize; i--)
         {
             this.items.set(i, this.items.get(i - sourceSize));
         }
@@ -965,6 +967,12 @@ public final class BooleanArrayList
         }
     }
 
+    @Override
+    public MutableBooleanStack toStack()
+    {
+        return BooleanStacks.mutable.withAll(this);
+    }
+
     private class InternalBooleanIterator implements MutableBooleanIterator
     {
         /**
@@ -1002,5 +1010,11 @@ public final class BooleanArrayList
             this.currentIndex--;
             this.lastIndex = -1;
         }
+    }
+
+    @Override
+    public MutableList<Boolean> boxed()
+    {
+        return new BoxedMutableBooleanList(this);
     }
 }

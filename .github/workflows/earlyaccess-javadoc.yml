@@ -12,13 +12,13 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        java-version: [18]
+        java-version: [22]
 
     runs-on: ${{ matrix.os }}
 
     steps:
       - name: Git Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Download JDK ${{ matrix.java-version }} from jdk.java.net
         uses: oracle-actions/setup-java@v1
         id: download-jdk
@@ -32,7 +32,7 @@ jobs:
           echo "steps.download-jdk.outputs.archive = ${{ steps.download-jdk.outputs.archive }}"
           echo "steps.download-jdk.outputs.version = ${{ steps.download-jdk.outputs.version }}"
       - name: Set Maven Wrapper
-        run: mvn -N io.takari:maven:0.7.7:wrapper -Dmaven=3.6.3
+        run: mvn -N wrapper:wrapper -Dmaven=3.6.3 --no-transfer-progress
       - name: 'JDK Version'
         run: java --version
       - name: Javadoc

@@ -1072,17 +1072,11 @@ public class ObjectBooleanHashMapWithHashingStrategy<K> implements MutableObject
     {
         if (key == null)
         {
-            if (other == null)
-            {
-                return true;
-            }
+            return other == null;
         }
-        else if (key != NULL_KEY && other != null)
+        if (key != NULL_KEY && other != null)
         {
-            if (this.hashingStrategy.equals(key, this.toNonSentinel(other)))
-            {
-                return true;
-            }
+            return this.hashingStrategy.equals(key, this.toNonSentinel(other));
         }
         return false;
     }
@@ -1130,6 +1124,20 @@ public class ObjectBooleanHashMapWithHashingStrategy<K> implements MutableObject
         int capacity = this.keys.length;
         // need at least one free slot for open addressing
         return Math.min(capacity - 1, capacity / OCCUPIED_DATA_RATIO);
+    }
+
+    /**
+    * @since 12.0
+    */
+    public boolean trimToSize()
+    {
+        int newCapacity = this.smallestPowerOfTwoGreaterThan(this.size());
+        if (this.keys.length > newCapacity)
+        {
+            this.rehash(newCapacity);
+            return true;
+        }
+        return false;
     }
 
     private void rehashAndGrow()
